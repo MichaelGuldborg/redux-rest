@@ -1,6 +1,6 @@
 import {Reducer} from 'redux';
 import {AppThunkAction} from './index';
-import {CrudServiceType} from '../services/rest/crudService';
+import {CrudServiceType} from '../services';
 import Identifiable from '../models/Identifyable';
 import RequestFeedback from "../models/ResponseFeedback";
 

@@ -1,6 +1,6 @@
 import {AppThunkAction} from './index';
 import {crudActionNames, KnownCrudRestAction} from "./CrudRestState";
-import {CrudPropertyServiceType} from "../services/rest/crudPropertyService";
+import {CrudPropertyServiceType} from "../services";
 import Identifiable from "../models/Identifyable";
 
 
