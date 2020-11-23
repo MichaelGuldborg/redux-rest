@@ -1,8 +1,8 @@
 import {Reducer} from 'redux';
 import {AppThunkAction} from './index';
-import {CrudServiceType} from '../services';
 import Identifiable from '../models/Identifyable';
 import RequestFeedback from "../models/ResponseFeedback";
+import {CrudServiceType} from "../services/rest/crudService";
 
 // -----------------
 // STATE - This defines the variant of data maintained in the Redux store.

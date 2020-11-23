@@ -1,7 +1,7 @@
 import {AppThunkAction} from './index';
 import {crudActionNames, KnownCrudRestAction} from "./CrudRestState";
-import {CrudPropertyServiceType} from "../services";
 import Identifiable from "../models/Identifyable";
+import {CrudPropertyServiceType} from "../services/rest/crudPropertyService";
 
 
 export interface CrudValueRestActionType<T> {

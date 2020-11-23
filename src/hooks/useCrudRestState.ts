@@ -1,6 +1,6 @@
 import {Dispatch, SetStateAction, useEffect, useState} from 'react';
-import {CrudServiceType} from "../services";
 import Identifiable from "../models/Identifyable";
+import {CrudServiceType} from "../services/rest/crudService";
 
 interface CompareFunction<S> {
     (a: S, b: S): boolean;

@@ -1,7 +1,7 @@
 import Identifiable from "../models/Identifyable";
-import {SignalRClient, SignalRFunctions} from "../services";
 import {useEffect, useState} from "react";
 import {HubConnectionState} from "@microsoft/signalr";
+import {SignalRClient, SignalRFunctions} from "../services/websocket/signalRConnection";
 
 
 export const useSocketCrudState = <T extends Identifiable, C extends SignalRClient>(url: string, connection: (url: string, functions: SignalRFunctions<T>) => C): [T[], C] => {
