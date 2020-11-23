@@ -27,3 +27,5 @@ export const useSocketCrudState = <T extends Identifiable, C extends SignalRClie
 
     return [elements, client]
 }
+
+export default useSocketCrudState
