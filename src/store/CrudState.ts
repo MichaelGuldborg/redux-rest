@@ -3,11 +3,12 @@ import {AppThunkAction} from './index';
 import Identifiable from '../models/Identifyable';
 import RequestFeedback from "../models/ResponseFeedback";
 import {CrudServiceType} from "../services/rest/crudService";
+import NamedAction from "../models/NamedAction";
 
 // -----------------
 // STATE - This defines the variant of data maintained in the Redux store.
 
-export interface CrudRestState<S> {
+export interface CrudState<S> {
     elements: S[];
     selectedElement?: S;
     loading: boolean;
@@ -15,7 +16,7 @@ export interface CrudRestState<S> {
     error?: string;
 }
 
-export const initialRequestState = <S>(initialState: S[] = []): CrudRestState<S> => {
+export const initialCrudState = <S>(initialState: S[] = []): CrudState<S> => {
     return {
         elements: initialState,
         selectedElement: undefined,
@@ -41,7 +42,7 @@ export interface CrudActionTypes {
     readonly CLEAR: 'REQUEST_CLEAR';
 }
 
-export const crudActionNames: CrudActionTypes = {
+export const crudActionTypes: CrudActionTypes = {
     DELETE: 'REQUEST_DELETE',
     SELECT: 'REQUEST_EDIT',
     ERROR: 'REQUEST_ERROR',
@@ -95,7 +96,7 @@ export interface CrudClearAction {
 // Declare a 'discriminated union' variant. This guarantees that all references to 'variant' properties contain one of the
 // declared variant strings (and not any other arbitrary string).
 
-export type KnownCrudRestAction<S> =
+export type KnownCrudAction<S> =
     | CrudLoadingAction
     | CrudErrorAction
     | CrudRefreshAction<S>
@@ -104,114 +105,40 @@ export type KnownCrudRestAction<S> =
     | CrudDeleteAction<S>
     | CrudClearAction;
 
-// ----------------
-// ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
-// They don't directly mutate state, but they can have external side-effects (such as loading data).
-
-export interface CrudRestActionType<T> {
-    refresh(): AppThunkAction<KnownCrudRestAction<T>>;
-
-    selectElement(element: T | undefined): AppThunkAction<KnownCrudRestAction<T>>;
-
-    updateElement(element: T | undefined): AppThunkAction<KnownCrudRestAction<T>>;
-
-    deleteElement(element: T | undefined): AppThunkAction<KnownCrudRestAction<T>>;
-
-    cancelError(): AppThunkAction<KnownCrudRestAction<T>>;
-}
-
-
-export const crudRestActions = <T extends Partial<Identifiable>>(stateName: string, service: CrudServiceType<T>): CrudRestActionType<T> => {
-    return {
-        refresh: (): AppThunkAction<KnownCrudRestAction<T>> => {
-            return async (dispatch) => {
-                dispatch({name: stateName, type: crudActionNames.LOADING});
-                const response = await service.getAll();
-                if (response.success) {
-                    dispatch({name: stateName, type: crudActionNames.REFRESH, elements: response.value});
-                } else {
-                    dispatch({name: stateName, type: crudActionNames.ERROR, feedback: response.feedback})
-                }
-            };
-        },
-
-        selectElement: (element: T | undefined): AppThunkAction<KnownCrudRestAction<T>> => {
-            return async (dispatch) => {
-                dispatch({name: stateName, type: crudActionNames.SELECT, element: element});
-            };
-        },
-
-        updateElement: (element) => {
-            return async (dispatch) => {
-                if (element === undefined) return;
-                dispatch({name: stateName, type: crudActionNames.LOADING});
-
-                const response = element?.id ? await service.update(element) : await service.create(element);
-                if (response.success) {
-                    dispatch({name: stateName, type: crudActionNames.UPDATE, element: response.value});
-                }
-                dispatch({name: stateName, type: crudActionNames.ERROR, feedback: response.feedback});
-            };
-        },
-
-        deleteElement: (element: T): AppThunkAction<KnownCrudRestAction<T>> => {
-            return async (dispatch) => {
-                dispatch({name: stateName, type: crudActionNames.LOADING});
-                const response = await service.delete(element);
-                if (response.success) {
-                    dispatch({name: stateName, type: crudActionNames.DELETE, element: element});
-                }
-                dispatch({name: stateName, type: crudActionNames.ERROR, feedback: response.feedback});
-            };
-        },
-
-        cancelError(): AppThunkAction<KnownCrudRestAction<T>> {
-            return (dispatch) => {
-                dispatch({name: stateName, type: crudActionNames.ERROR, feedback: undefined})
-            }
-        }
-    };
-};
-
-
-export interface NamedAction {
-    name: string;
-    type: string;
-}
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 // THIS IS THE ONE
 //https://redux.js.org/recipes/structuring-reducers/reusing-reducer-logic/
 
-export function crudReducer<T extends Identifiable, S extends CrudRestState<T> = CrudRestState<T>>(stateName: string, initialState: S, reducer?: (state: S, incomingAction: NamedAction) => S): Reducer<S, NamedAction> {
+export function crudReducer<T extends Identifiable, S extends CrudState<T> = CrudState<T>>(stateName: string, initialState: S, reducer?: (state: S, incomingAction: NamedAction) => S): Reducer<S, NamedAction> {
     return (state: S | undefined, incomingAction: NamedAction): S => {
         if (state === undefined) {
             return {...initialState};
         }
-        if (incomingAction.type === crudActionNames.CLEAR) {
+        if (incomingAction.type === crudActionTypes.CLEAR) {
             return {...initialState};
         }
         if (incomingAction.name !== stateName) {
             return state;
         }
 
-        const action = incomingAction as KnownCrudRestAction<T>;
+        const action = incomingAction as KnownCrudAction<T>;
         switch (action.type) {
-            case crudActionNames.LOADING:
+            case crudActionTypes.LOADING:
                 return {
                     ...state,
                     loading: true,
                     error: undefined,
                 };
-            case crudActionNames.ERROR:
+            case crudActionTypes.ERROR:
                 return {
                     ...state,
                     loading: false,
                     feedback: action.feedback,
                     error: action.feedback?.severity === 'success' ? action.feedback.message : undefined,
                 };
-            case crudActionNames.REFRESH:
+            case crudActionTypes.REFRESH:
                 return {
                     ...state,
                     elements: action.elements,
@@ -220,7 +147,7 @@ export function crudReducer<T extends Identifiable, S extends CrudRestState<T> =
                     error: undefined,
                     feedback: undefined,
                 };
-            case crudActionNames.SELECT:
+            case crudActionTypes.SELECT:
                 return {
                     ...state,
                     selectedElement: action.element,
@@ -228,7 +155,7 @@ export function crudReducer<T extends Identifiable, S extends CrudRestState<T> =
                     error: undefined,
                     feedback: undefined,
                 };
-            case crudActionNames.UPDATE: {
+            case crudActionTypes.UPDATE: {
                 const elementIndex = state.elements.findIndex((e) => e.id === action.element.id);
                 elementIndex === -1 ? state.elements.unshift(action.element) : (state.elements[elementIndex] = action.element);
                 const selectedElement = action.element.id === state.selectedElement?.id ? action.element : state.selectedElement;
@@ -241,7 +168,7 @@ export function crudReducer<T extends Identifiable, S extends CrudRestState<T> =
                     feedback: undefined,
                 };
             }
-            case crudActionNames.DELETE: {
+            case crudActionTypes.DELETE: {
                 const elements = state.elements.filter((e) => e.id !== action.element.id);
                 return {
                     ...state,

@@ -1,25 +1,18 @@
-import {
-    initialRequestState,
-    KnownCrudRestAction,
-    NamedAction,
-    crudActionNames,
-    CrudActionTypes,
-    crudReducer,
-    CrudRestState
-} from "./CrudRestState";
+import {crudActionTypes, CrudActionTypes, crudReducer, CrudState, initialCrudState, KnownCrudAction} from "./CrudState";
 import Identifiable from "../models/Identifyable";
 import {Reducer} from "redux";
 import {AppThunkAction} from "./index";
 import {SocketClient} from "../services/websocket/socketClient";
+import NamedAction from "../models/NamedAction";
 
-export interface SocketState<S, C extends SocketClient = SocketClient> extends CrudRestState<S> {
+export interface SocketState<S, C extends SocketClient = SocketClient> extends CrudState<S> {
     client?: C,
     connected: Boolean,
 }
 
 export const initialSocketState = <S, C extends SocketClient = SocketClient>(initialState: Required<S>[] = []): SocketState<S, C> => {
     return {
-        ...initialRequestState<Required<S>>(initialState),
+        ...initialCrudState<Required<S>>(initialState),
         client: undefined,
         connected: false,
     }
@@ -31,7 +24,7 @@ export interface SocketActionTypes extends CrudActionTypes {
 }
 
 export const socketActionNames: SocketActionTypes = {
-    ...crudActionNames,
+    ...crudActionTypes,
     CONNECT: 'SOCKET_CONNECT',
     DISCONNECT: 'SOCKET_DISCONNECT',
 };
@@ -48,7 +41,7 @@ export interface SocketDisconnectAction {
 }
 
 export type KnownSocketAction<S> =
-    KnownCrudRestAction<S>
+    KnownCrudAction<S>
     | SocketConnectAction
     | SocketDisconnectAction
 
