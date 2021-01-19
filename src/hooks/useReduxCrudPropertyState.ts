@@ -6,7 +6,13 @@ import {CrudRestPropertyActionType} from "../store/CrudRestPropertyActions";
 import {Dispatch} from "redux";
 
 
-export const useReduxCrudPropertyState = <TState, T extends Partial<Identifiable>>(selector: (state: TState) => CrudState<T>, actions: CrudRestPropertyActionType<T>, parentId: string): [CrudState<T>, Dispatch<any>] => {
+export type ReduxCrudStateFunctions<T> = {
+    setSelectedElement: (element?: T) => void;
+    updateElement: (element: T) => void;
+};
+export type ReduxCrudState<T> = [CrudState<T>, Dispatch<any>, ReduxCrudStateFunctions<T>];
+
+export const useReduxCrudPropertyState = <TState, T extends Partial<Identifiable>>(selector: (state: TState) => CrudState<T>, actions: CrudRestPropertyActionType<T>, parentId: string): ReduxCrudState<T> => {
     const dispatch = useDispatch();
     const state = useSelector(selector);
     const elementsLength = state.elements?.length;
@@ -16,7 +22,11 @@ export const useReduxCrudPropertyState = <TState, T extends Partial<Identifiable
         dispatch(actions.refresh(parentId));
     }, [actions, parentId, dispatch, elementsLength])
 
-    return [state, dispatch];
+
+    return [state, dispatch, {
+        setSelectedElement: (element?: T) => dispatch(actions.selectElement(element)),
+        updateElement: (element: T) => dispatch(actions.updateElement(parentId, element)),
+    }];
 }
 
 export default useReduxCrudPropertyState;
