@@ -7,10 +7,14 @@ import {Dispatch} from "redux";
 
 
 export type ReduxCrudStateFunctions<T> = {
-    setSelectedElement: (element?: T) => void;
+    dispatch: Dispatch<any>;
+    refresh: () => void;
     updateElement: (element: T) => void;
+    deleteElement: (element: T) => void;
+    setSelectedElement: (element?: T) => void;
+    cancelError: () => void;
 };
-export type ReduxCrudState<T> = [CrudState<T>, Dispatch<any>, ReduxCrudStateFunctions<T>];
+export type ReduxCrudState<T> = [CrudState<T>, ReduxCrudStateFunctions<T>];
 
 export const useReduxCrudPropertyState = <TState, T extends Partial<Identifiable>>(selector: (state: TState) => CrudState<T>, actions: CrudRestPropertyActionType<T>, parentId: string): ReduxCrudState<T> => {
     const dispatch = useDispatch();
@@ -23,9 +27,13 @@ export const useReduxCrudPropertyState = <TState, T extends Partial<Identifiable
     }, [actions, parentId, dispatch, elementsLength])
 
 
-    return [state, dispatch, {
-        setSelectedElement: (element?: T) => dispatch(actions.selectElement(element)),
-        updateElement: (element: T) => dispatch(actions.updateElement(parentId, element)),
+    return [state, {
+        dispatch,
+        refresh: () => dispatch(actions.refresh(parentId)),
+        updateElement: (element) => dispatch(actions.updateElement(parentId, element)),
+        deleteElement: (element => dispatch(actions.deleteElement(parentId, element))),
+        setSelectedElement: (element) => dispatch(actions.selectElement(element)),
+        cancelError: () => dispatch(actions.cancelError()),
     }];
 }
 

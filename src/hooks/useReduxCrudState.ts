@@ -16,9 +16,13 @@ export const useReduxCrudState = <TState, T extends Partial<Identifiable>>(selec
         dispatch(actions.refresh());
     }, [actions, dispatch, elementsLength])
 
-    return [state, dispatch, {
-        setSelectedElement: (element?: T) => dispatch(actions.selectElement(element)),
-        updateElement: (element: T) => dispatch(actions.updateElement(element)),
+    return [state, {
+        dispatch,
+        refresh: () => dispatch(actions.refresh()),
+        updateElement: (element) => dispatch(actions.updateElement(element)),
+        deleteElement: (element => dispatch(actions.deleteElement(element))),
+        setSelectedElement: (element) => dispatch(actions.selectElement(element)),
+        cancelError: () => dispatch(actions.cancelError()),
     }];
 }
 
