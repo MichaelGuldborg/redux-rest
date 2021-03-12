@@ -1,6 +1,6 @@
 {
   "name": "redux-rest-crud",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A collections of reducers, actions and methods to extend redux state management with simple and generic rest state functionalities.",
   "author": "Michael Guldborg",
   "license": "MIT",

@@ -181,7 +181,7 @@ export function crudReducer<T extends Identifiable, S extends CrudState<T> = Cru
                 const selectedElement = action.element.id === state.selectedElement?.id ? action.element : state.selectedElement;
                 return {
                     ...state,
-                    elements: state.elements,
+                    elements: elements,
                     selectedElement: selectedElement,
                     loading: false,
                     error: undefined,
