@@ -14,11 +14,6 @@ export interface SignalRClient {
     connection: HubConnection,
 }
 
-export const startSignalRConnection = (hubPath: string, connection: HubConnection) => connection.start()
-    .then(() => console.info(hubPath + ' Connected'))
-    .catch(err => {
-        console.error('Connection Error: ', err)
-    });
 
 export const signalRConnection = <T>(url: string, functions?: SignalRFunctions<T>): HubConnection => {
     const connection = new HubConnectionBuilder()

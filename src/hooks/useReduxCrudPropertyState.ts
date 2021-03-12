@@ -5,7 +5,6 @@ import {CrudState} from "../store/CrudState";
 import {CrudRestPropertyActionType} from "../store/CrudRestPropertyActions";
 import {Dispatch} from "redux";
 
-
 export type ReduxCrudStateFunctions<T> = {
     dispatch: Dispatch<any>;
     refresh: () => void;

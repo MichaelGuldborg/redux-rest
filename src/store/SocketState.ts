@@ -69,24 +69,6 @@ export function socketReducer<T extends Identifiable, S extends SocketState<T> =
                     ...state,
                     connected: false
                 };
-            case socketActionNames.REFRESH:
-                return {
-                    ...state,
-                    elements: state.elements,
-                    selectedElement: undefined,
-                    loading: false,
-                    error: undefined,
-                    feedback: undefined,
-                };
-            case socketActionNames.UPDATE:
-                return {
-                    ...state,
-                    elements: state.elements,
-                    selectedElement: undefined,
-                    loading: false,
-                    error: undefined,
-                    feedback: undefined,
-                };
             default: {
                 if (reducer && typeof reducer === "function") {
                     return reducer(state, action);

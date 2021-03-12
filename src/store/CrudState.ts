@@ -1,8 +1,6 @@
 import {Reducer} from 'redux';
-import {AppThunkAction} from './index';
 import Identifiable from '../models/Identifyable';
 import RequestFeedback from "../models/ResponseFeedback";
-import {CrudServiceType} from "../services/rest/crudService";
 import NamedAction from "../models/NamedAction";
 
 // -----------------
@@ -37,6 +35,7 @@ export interface CrudActionTypes {
     readonly REFRESH: 'REQUEST_REFRESH';
     readonly SELECT: 'REQUEST_EDIT';
     readonly UPDATE: 'REQUEST_UPDATE';
+    readonly UPDATE_TO_TOP: 'REQUEST_UPDATE_TO_TOP';
     readonly SORT: 'REQUEST_SORT';
     readonly DELETE: 'REQUEST_DELETE';
     readonly CLEAR: 'REQUEST_CLEAR';
@@ -50,6 +49,7 @@ export const crudActionTypes: CrudActionTypes = {
     REFRESH: 'REQUEST_REFRESH',
     SORT: 'REQUEST_SORT',
     UPDATE: 'REQUEST_UPDATE',
+    UPDATE_TO_TOP: 'REQUEST_UPDATE_TO_TOP',
     CLEAR: 'REQUEST_CLEAR',
 };
 
@@ -82,6 +82,12 @@ export interface CrudUpdateAction<S> {
     element: S;
 }
 
+export interface CrudUpdateToTopAction<S> {
+    name: string;
+    type: 'REQUEST_UPDATE_TO_TOP';
+    element: S;
+}
+
 export interface CrudDeleteAction<S> {
     name: string;
     type: 'REQUEST_DELETE';
@@ -102,6 +108,7 @@ export type KnownCrudAction<S> =
     | CrudRefreshAction<S>
     | CrudEditAction<S>
     | CrudUpdateAction<S>
+    | CrudUpdateToTopAction<S>
     | CrudDeleteAction<S>
     | CrudClearAction;
 
@@ -158,6 +165,19 @@ export function crudReducer<T extends Identifiable, S extends CrudState<T> = Cru
             case crudActionTypes.UPDATE: {
                 const elementIndex = state.elements.findIndex((e) => e.id === action.element.id);
                 elementIndex === -1 ? state.elements.unshift(action.element) : (state.elements[elementIndex] = action.element);
+                const selectedElement = action.element.id === state.selectedElement?.id ? action.element : state.selectedElement;
+                return {
+                    ...state,
+                    elements: state.elements,
+                    selectedElement: selectedElement,
+                    loading: false,
+                    error: undefined,
+                    feedback: undefined,
+                };
+            }
+            case crudActionTypes.UPDATE_TO_TOP: {
+                const elements = state.elements.filter(e => e.id !== action.element.id);
+                elements.unshift(action.element);
                 const selectedElement = action.element.id === state.selectedElement?.id ? action.element : state.selectedElement;
                 return {
                     ...state,
